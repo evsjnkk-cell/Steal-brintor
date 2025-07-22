@@ -60,7 +60,9 @@ tpButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- زر الهروب
 escapeButton.MouseButton1Click:Connect(function()
-    player.Character.HumanoidRootPart.CFrame = CFrame.new(9999, 100, 9999)
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.CFrame = CFrame.new(0, 50, 0) -- نقطة آمنة داخل الخريطة
+    end
 end)
