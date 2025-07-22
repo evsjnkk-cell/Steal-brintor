@@ -1,107 +1,129 @@
-local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
+-- سكربت: Steal Brainrot - إصدار "عزيز"
+-- إعداد: بناءً على طلبك، مع واجهة عربية وزر اختراق القواعد
+-- مخصص لـ Delta Executor
 
--- واجهة
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+-- واجهة GUI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "AzizGUI"
+gui.ResetOnSpawn = false
 
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 240, 0, 220)
-frame.Position = UDim2.new(0, 10, 0, 100)
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-frame.BorderSizePixel = 2
+frame.Size = UDim2.new(0, 280, 0, 300)
+frame.Position = UDim2.new(0, 20, 0, 100)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Visible = true
 
 local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1, 0, 0, 40)
-title.Position = UDim2.new(0, 0, 0, 0)
-title.Text = "عزيز"
-title.Font = Enum.Font.GothamBold
-title.TextColor3 = Color3.new(1, 1, 1)
-title.BackgroundTransparency = 1
-title.TextScaled = true
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+title.Text = "واجهة عزيز"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
 
-local hideBtn = Instance.new("TextButton", frame)
-hideBtn.Text = "إخفاء / إظهار"
-hideBtn.Size = UDim2.new(1, -10, 0, 30)
-hideBtn.Position = UDim2.new(0, 5, 0, 45)
-hideBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-hideBtn.TextColor3 = Color3.new(1, 1, 1)
-hideBtn.Font = Enum.Font.Gotham
-hideBtn.TextScaled = true
-
-local tpBtn = Instance.new("TextButton", frame)
-tpBtn.Text = "الهروب السريع"
-tpBtn.Size = UDim2.new(1, -10, 0, 30)
-tpBtn.Position = UDim2.new(0, 5, 0, 85)
-tpBtn.BackgroundColor3 = Color3.fromRGB(70, 120, 70)
-tpBtn.TextColor3 = Color3.new(1, 1, 1)
-tpBtn.Font = Enum.Font.Gotham
-tpBtn.TextScaled = true
-
-local jumpBtn = Instance.new("TextButton", frame)
-jumpBtn.Text = "قفز لا نهائي"
-jumpBtn.Size = UDim2.new(1, -10, 0, 30)
-jumpBtn.Position = UDim2.new(0, 5, 0, 125)
-jumpBtn.BackgroundColor3 = Color3.fromRGB(90, 90, 120)
-jumpBtn.TextColor3 = Color3.new(1, 1, 1)
-jumpBtn.Font = Enum.Font.Gotham
-jumpBtn.TextScaled = true
-
-local espBtn = Instance.new("TextButton", frame)
-espBtn.Text = "كشف اللاعبين"
-espBtn.Size = UDim2.new(1, -10, 0, 30)
-espBtn.Position = UDim2.new(0, 5, 0, 165)
-espBtn.BackgroundColor3 = Color3.fromRGB(120, 80, 80)
-espBtn.TextColor3 = Color3.new(1, 1, 1)
-espBtn.Font = Enum.Font.Gotham
-espBtn.TextScaled = true
-
--- زر الإخفاء/الإظهار
-local visible = true
-hideBtn.MouseButton1Click:Connect(function()
-    visible = not visible
-    frame.Visible = visible
+-- اختصارات
+UserInputService.InputBegan:Connect(function(input)
+	if input.KeyCode == Enum.KeyCode.RightShift then
+		frame.Visible = not frame.Visible
+	end
 end)
 
--- زر النقل السريع
-tpBtn.MouseButton1Click:Connect(function()
-    local base = workspace:FindFirstChild(player.Name.."'s Base") or workspace:FindFirstChild("MyBase")
-    if base then
-        local front = base:FindFirstChild("Front") or base:FindFirstChildWhichIsA("Part")
-        if front then
-            for i = 1, 5 do
-                if char and char:FindFirstChild("HumanoidRootPart") then
-                    char.HumanoidRootPart.CFrame = front.CFrame + Vector3.new(0, 5, 0)
-                    wait(0.2)
-                end
-            end
-        end
-    end
+-- أزرار
+function createButton(text, yPos, callback)
+	local btn = Instance.new("TextButton", frame)
+	btn.Size = UDim2.new(1, -20, 0, 40)
+	btn.Position = UDim2.new(0, 10, 0, yPos)
+	btn.Text = text
+	btn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Font = Enum.Font.SourceSans
+	btn.TextSize = 18
+	btn.MouseButton1Click:Connect(callback)
+	return btn
+end
+
+-- زر: الانتقال السريع إلى القاعدة
+createButton("الانتقال لمنطقتي", 0.15, function()
+	local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	local base = workspace:FindFirstChild(player.Name .. "'s Base") or workspace:FindFirstChild(player.Name .. " Base")
+	if hrp and base then
+		for i = 1, 5 do
+			hrp.CFrame = CFrame.new(base.Position + Vector3.new(0, 5, 8))
+			wait(0.05)
+		end
+	end
 end)
 
--- قفز لا نهائي
-jumpBtn.MouseButton1Click:Connect(function()
-    game:GetService("UserInputService").JumpRequest:Connect(function()
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid:ChangeState("Jumping")
-        end
-    end)
+-- زر: قفز لا نهائي
+local infiniteJump = false
+createButton("قفز لا نهائي", 0.35, function()
+	infiniteJump = not infiniteJump
 end)
 
--- كشف اللاعبين (ESP)
-espBtn.MouseButton1Click:Connect(function()
-    for _, plr in pairs(game.Players:GetPlayers()) do
-        if plr ~= player and plr.Character and plr.Character:FindFirstChild("Head") then
-            local bill = Instance.new("BillboardGui", plr.Character.Head)
-            bill.Size = UDim2.new(0, 100, 0, 40)
-            bill.AlwaysOnTop = true
-            local txt = Instance.new("TextLabel", bill)
-            txt.Text = plr.Name
-            txt.Size = UDim2.new(1, 0, 1, 0)
-            txt.BackgroundTransparency = 1
-            txt.TextColor3 = Color3.new(1, 0, 0)
-            txt.Font = Enum.Font.GothamBold
-            txt.TextScaled = true
-        end
-    end
+UserInputService.JumpRequest:Connect(function()
+	if infiniteJump then
+		player.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+	end
+end)
+
+-- زر: كشف اللاعبين
+createButton("كشف أماكن اللاعبين", 0.55, function()
+	for _, plr in pairs(Players:GetPlayers()) do
+		if plr ~= player and plr.Character and plr.Character:FindFirstChild("Head") then
+			local billboard = Instance.new("BillboardGui", plr.Character.Head)
+			billboard.Size = UDim2.new(0,100,0,20)
+			billboard.AlwaysOnTop = true
+			local name = Instance.new("TextLabel", billboard)
+			name.Size = UDim2.new(1,0,1,0)
+			name.Text = plr.Name
+			name.TextColor3 = Color3.new(1,0,0)
+			name.BackgroundTransparency = 1
+		end
+	end
+end)
+
+-- زر: NoClip (اختراق الجدران)
+local noclip = false
+createButton("اختراق الجدران (NoClip)", 0.75, function()
+	noclip = not noclip
+end)
+
+RunService.Stepped:Connect(function()
+	if noclip and player.Character then
+		for _, part in pairs(player.Character:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.CanCollide = false
+			end
+		end
+	end
+end)
+
+-- زر: تفعيل ثغرة "قاعدة قريبة تعتبر داخلك"
+createButton("ثغرة دخول قاعدة الخصم", 0.90, function()
+	local bases = {}
+	for _, obj in pairs(workspace:GetChildren()) do
+		if obj:IsA("Model") and obj:FindFirstChild("Main") and obj.Name:find("Base") then
+			table.insert(bases, obj)
+		end
+	end
+
+	table.sort(bases, function(a, b)
+		return (player.Character.HumanoidRootPart.Position - a:GetModelCFrame().p).Magnitude <
+		       (player.Character.HumanoidRootPart.Position - b:GetModelCFrame().p).Magnitude
+	end)
+
+	local closest = bases[1]
+	if closest then
+		local fakeInside = Instance.new("Part", workspace)
+		fakeInside.Anchored = true
+		fakeInside.Transparency = 1
+		fakeInside.CanCollide = false
+		fakeInside.Position = closest:GetModelCFrame().p
+		player.Character.HumanoidRootPart.CFrame = fakeInside.CFrame
+	end
 end)
