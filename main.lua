@@ -1,12 +1,11 @@
--- سكربت Delta لسرقة العقول مع واجهة عربية وزر انتقال
+-- سكربت Delta مع واجهة عربية وزر سرعة التليبورت وزر زيادة سرعة اللاعب
 
 local player = game.Players.LocalPlayer
 local brainName = "Brain"
 
--- واجهة المستخدم
 local ScreenGui = Instance.new("ScreenGui", player.PlayerGui)
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 200, 0, 150)
+Frame.Size = UDim2.new(0, 220, 0, 250)
 Frame.Position = UDim2.new(0, 10, 0, 100)
 Frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
 Frame.BorderSizePixel = 2
@@ -39,8 +38,26 @@ escapeButton.TextColor3 = Color3.new(1, 1, 1)
 escapeButton.Font = Enum.Font.Gotham
 escapeButton.TextScaled = true
 
--- التليبورت التلقائي
+local speedButton = Instance.new("TextButton", Frame)
+speedButton.Text = "سرعة التليبورت: 1 ثانية"
+speedButton.Size = UDim2.new(1, -10, 0, 30)
+speedButton.Position = UDim2.new(0, 5, 0, 140)
+speedButton.BackgroundColor3 = Color3.new(0.2, 0.4, 0.2)
+speedButton.TextColor3 = Color3.new(1, 1, 1)
+speedButton.Font = Enum.Font.Gotham
+speedButton.TextScaled = true
+
+local walkSpeedButton = Instance.new("TextButton", Frame)
+walkSpeedButton.Text = "سرعة اللاعب: 16"
+walkSpeedButton.Size = UDim2.new(1, -10, 0, 30)
+walkSpeedButton.Position = UDim2.new(0, 5, 0, 180)
+walkSpeedButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.5)
+walkSpeedButton.TextColor3 = Color3.new(1, 1, 1)
+walkSpeedButton.Font = Enum.Font.Gotham
+walkSpeedButton.TextScaled = true
+
 local running = false
+local tpSpeed = 1 -- سرعة التليبورت
 
 function tpToBrains()
     for _, brain in pairs(workspace:GetDescendants()) do
@@ -56,13 +73,47 @@ tpButton.MouseButton1Click:Connect(function()
     tpButton.Text = running and "إيقاف التليبورت" or "تشغيل التليبورت التلقائي"
     while running do
         tpToBrains()
-        wait(1)
+        wait(tpSpeed)
     end
 end)
 
 escapeButton.MouseButton1Click:Connect(function()
     local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
     if hrp then
-        hrp.CFrame = CFrame.new(0, 50, 0) -- نقطة آمنة داخل الخريطة
+        local startPos = hrp.Position
+        local steps = 5
+        local stepSize = 20
+
+        for i = 1, steps do
+            local newPos = startPos + Vector3.new(i * stepSize, 0, i * stepSize)
+            hrp.CFrame = CFrame.new(newPos)
+            wait(0.3)
+        end
+    end
+end)
+
+speedButton.MouseButton1Click:Connect(function()
+    tpSpeed = tpSpeed - 0.3
+    if tpSpeed < 0.1 then
+        tpSpeed = 2
+    end
+    speedButton.Text = ("سرعة التليبورت: %.1f ثانية"):format(tpSpeed)
+end)
+
+walkSpeedButton.MouseButton1Click:Connect(function()
+    local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        -- زيادة سرعة اللاعب تدريجياً: 16 (الافتراضي) → 32 → 48 → 64 → 80 ثم يرجع 16
+        local speeds = {16, 32, 48, 64, 80}
+        local currentSpeed = humanoid.WalkSpeed
+        local nextSpeed = 16
+        for i, speed in ipairs(speeds) do
+            if currentSpeed < speed then
+                nextSpeed = speed
+                break
+            end
+        end
+        humanoid.WalkSpeed = nextSpeed
+        walkSpeedButton.Text = "سرعة اللاعب: " .. tostring(nextSpeed)
     end
 end)
