@@ -1,94 +1,84 @@
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local humanoid = char:WaitForChild("Humanoid")
+-- واجهة GUI باسم "عزيز"
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 250, 0, 250)
+Frame.Position = UDim2.new(0, 20, 0, 100)
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame.Active = true
+Frame.Draggable = true
 
-local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "DanceGui"
-
-local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 250, 0, 150)
-frame.Position = UDim2.new(0, 50, 0, 100)
-frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-frame.Active = true
-frame.Draggable = true
-
-local title = Instance.new("TextLabel", frame)
+local title = Instance.new("TextLabel", Frame)
 title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "اختر الرقصة"
-title.TextColor3 = Color3.new(1,1,1)
+title.Text = "واجهة عزيز - Da Hood"
+title.TextColor3 = Color3.new(1, 1, 1)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.SourceSansBold
-title.TextSize = 22
+title.TextSize = 18
 
-local dropdown = Instance.new("TextButton", frame)
-dropdown.Size = UDim2.new(0, 200, 0, 30)
-dropdown.Position = UDim2.new(0, 25, 0, 40)
-dropdown.Text = "اختر رقصة ▼"
-dropdown.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-dropdown.TextColor3 = Color3.new(1,1,1)
-dropdown.Font = Enum.Font.SourceSans
-dropdown.TextSize = 18
+-- زر الطيران
+local flyBtn = Instance.new("TextButton", Frame)
+flyBtn.Position = UDim2.new(0, 10, 0, 40)
+flyBtn.Size = UDim2.new(0, 230, 0, 30)
+flyBtn.Text = "تشغيل الطيران السريع"
+flyBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+flyBtn.TextColor3 = Color3.new(1, 1, 1)
 
-local listFrame = Instance.new("Frame", frame)
-listFrame.Size = UDim2.new(0, 200, 0, 100)
-listFrame.Position = UDim2.new(0, 25, 0, 70)
-listFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-listFrame.Visible = false
-listFrame.ClipsDescendants = true
+-- زر القفز
+local jumpBtn = Instance.new("TextButton", Frame)
+jumpBtn.Position = UDim2.new(0, 10, 0, 80)
+jumpBtn.Size = UDim2.new(0, 230, 0, 30)
+jumpBtn.Text = "قفز لا نهائي"
+jumpBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+jumpBtn.TextColor3 = Color3.new(1, 1, 1)
 
-local danceAnimations = {
-    ["رقص 1"] = "rbxassetid://507771019", -- مثال انيمشن رقص
-    ["رقص 2"] = "rbxassetid://507777826",
-    ["رقص 3"] = "rbxassetid://507780686",
-    ["رقص ترند تيك توك 1"] = "rbxassetid://12345678", -- استبدلها برابط الانميشن الحقيقي
-    ["رقص ترند تيك توك 2"] = "rbxassetid://87654321",
-}
+-- زر تيلبورت للبنك
+local bankTpBtn = Instance.new("TextButton", Frame)
+bankTpBtn.Position = UDim2.new(0, 10, 0, 120)
+bankTpBtn.Size = UDim2.new(0, 230, 0, 30)
+bankTpBtn.Text = "تيلبورت إلى البنك"
+bankTpBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+bankTpBtn.TextColor3 = Color3.new(1, 1, 1)
 
-local selectedDance = nil
+-- زر تيلبورت للأسلحة
+local gunTpBtn = Instance.new("TextButton", Frame)
+gunTpBtn.Position = UDim2.new(0, 10, 0, 160)
+gunTpBtn.Size = UDim2.new(0, 230, 0, 30)
+gunTpBtn.Text = "تيلبورت إلى المتجر"
+gunTpBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+gunTpBtn.TextColor3 = Color3.new(1, 1, 1)
 
--- إنشاء قائمة الاختيارات
-local yPos = 0
-for name, animId in pairs(danceAnimations) do
-    local option = Instance.new("TextButton", listFrame)
-    option.Size = UDim2.new(1, 0, 0, 25)
-    option.Position = UDim2.new(0, 0, 0, yPos)
-    option.Text = name
-    option.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    option.TextColor3 = Color3.new(1,1,1)
-    option.Font = Enum.Font.SourceSans
-    option.TextSize = 16
-    option.MouseButton1Click:Connect(function()
-        selectedDance = animId
-        dropdown.Text = name .. " ▼"
-        listFrame.Visible = false
-    end)
-    yPos = yPos + 30
-end
+-- زر إخفاء الواجهة
+local toggleBtn = Instance.new("TextButton", Frame)
+toggleBtn.Position = UDim2.new(0, 10, 0, 200)
+toggleBtn.Size = UDim2.new(0, 230, 0, 30)
+toggleBtn.Text = "إخفاء / إظهار الواجهة"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+toggleBtn.TextColor3 = Color3.new(1, 1, 1)
 
-dropdown.MouseButton1Click:Connect(function()
-    listFrame.Visible = not listFrame.Visible
+-- الطيران السريع
+flyBtn.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet("https://pastebin.com/raw/Y5tC2TDb"))() -- سكربت طيران سريع
 end)
 
-local playBtn = Instance.new("TextButton", frame)
-playBtn.Size = UDim2.new(0, 100, 0, 30)
-playBtn.Position = UDim2.new(0, 75, 0, 175)
-playBtn.Text = "شغل الرقصة"
-playBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
-playBtn.TextColor3 = Color3.new(1,1,1)
-playBtn.Font = Enum.Font.SourceSans
-playBtn.TextSize = 18
+-- قفز لا نهائي
+jumpBtn.MouseButton1Click:Connect(function()
+    local plr = game.Players.LocalPlayer
+    game:GetService("UserInputService").JumpRequest:Connect(function()
+        plr.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+    end)
+end)
 
-local function playAnimation(animId)
-    if not animId then return end
-    local anim = Instance.new("Animation")
-    anim.AnimationId = animId
-    local animTrack = humanoid:LoadAnimation(anim)
-    animTrack:Play()
-end
+-- تيلبورت للبنك
+bankTpBtn.MouseButton1Click:Connect(function()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-452, 22, -283) -- إحداثيات البنك
+end)
 
-playBtn.MouseButton1Click:Connect(function()
-    if selectedDance then
-        playAnimation(selectedDance)
-    end
+-- تيلبورت للسلاح
+gunTpBtn.MouseButton1Click:Connect(function()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-265, 22, -100) -- إحداثيات متجر السلاح
+end)
+
+-- إخفاء / إظهار
+toggleBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = not Frame.Visible
 end)
