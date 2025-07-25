@@ -1,83 +1,91 @@
--- سكربت Steal Brainrot GUI - باسم "عزيز"
+-- سكربت مخصص لـ Steal Brainrot على Delta Executor
+-- يشمل: نقل سريع لمنطقتك، قفز لا نهائي، ESP، واجهة عربية باسم "عزيز"
+
 local player = game.Players.LocalPlayer
-local UIS = game:GetService("UserInputService")
+local character = player.Character or player.CharacterAdded:Wait()
 
--- إنشاء الواجهة
+-- الواجهة
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "AzizGUI"
+ScreenGui.Name = "عزيز"
 
-local main = Instance.new("Frame", ScreenGui)
-main.Size = UDim2.new(0, 250, 0, 300)
-main.Position = UDim2.new(0.05, 0, 0.2, 0)
-main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-main.Visible = true
-main.Active = true
-main.Draggable = true
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 300, 0, 300)
+MainFrame.Visible = true
 
--- زر إخفاء/إظهار الواجهة
-UIS.InputBegan:Connect(function(input)
-	if input.KeyCode == Enum.KeyCode.M then
-		main.Visible = not main.Visible
-	end
+local UICorner = Instance.new("UICorner", MainFrame)
+
+-- زر المربع الصغير
+local ToggleButton = Instance.new("TextButton", ScreenGui)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ToggleButton.Size = UDim2.new(0, 40, 0, 40)
+ToggleButton.Position = UDim2.new(0, 10, 0.5, -20)
+ToggleButton.Text = ""
+ToggleButton.Draggable = true
+ToggleButton.Active = true
+
+-- اخفاء واظهار الواجهة
+ToggleButton.MouseButton1Click:Connect(function()
+	MainFrame.Visible = not MainFrame.Visible
 end)
 
-local function createButton(text, yPos, callback)
-	local btn = Instance.new("TextButton", main)
-	btn.Size = UDim2.new(0, 200, 0, 40)
-	btn.Position = UDim2.new(0, 25, 0, yPos)
-	btn.BackgroundColor3 = Color3.fromRGB(math.random(100,255), math.random(100,255), math.random(100,255))
-	btn.TextColor3 = Color3.fromRGB(255,255,255)
-	btn.Text = text
-	btn.Font = Enum.Font.SourceSansBold
-	btn.TextScaled = true
-	btn.MouseButton1Click:Connect(callback)
-end
-
--- زر النقل السريع خارج منطقة العدو
-createButton("🚀 النقل السريع", 10, function()
-	for i = 1, 1000 do
-		task.spawn(function()
-			pcall(function()
-				player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(0, 100, 0)) -- غير الموقع حسب منطقتك
-			end)
-			task.wait()
-		end)
-	end
-end)
-
--- زر زيادة سرعة اللاعب
-createButton("⚡ زيادة السرعة", 60, function()
-	pcall(function()
-		player.Character.Humanoid.WalkSpeed = 100
-	end)
-end)
-
--- زر قفز لا نهائي
-createButton("🌀 قفز لا نهائي", 110, function()
-	local Jump = game:GetService("UserInputService")
-	Jump.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Space then
-			if player.Character then
-				player.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+-- دالة تنقل سريع لمنطقة القاعدة
+local function teleportToSafeZone()
+	local myBase = workspace:FindFirstChild(player.Name .. "'s Base")
+	if myBase then
+		local safeZone = myBase:FindFirstChild("DropZone")
+		if safeZone then
+			for _ = 1, 1000 do
+				character:WaitForChild("HumanoidRootPart").CFrame = safeZone.CFrame + Vector3.new(0, 3, 0)
+				wait(0.001)
 			end
 		end
-	end)
-end)
+	end
+end
 
--- زر ESP (كشف اللاعبين)
-createButton("🔍 كشف اللاعبين ESP", 160, function()
-	for _, plr in pairs(game.Players:GetPlayers()) do
-		if plr ~= player and plr.Character and plr.Character:FindFirstChild("Head") then
-			local Billboard = Instance.new("BillboardGui", plr.Character.Head)
-			Billboard.Size = UDim2.new(0, 100, 0, 40)
-			Billboard.Adornee = plr.Character.Head
-			Billboard.AlwaysOnTop = true
-			local label = Instance.new("TextLabel", Billboard)
-			label.Size = UDim2.new(1, 0, 1, 0)
-			label.Text = plr.Name
-			label.TextColor3 = Color3.fromRGB(255, 50, 50)
-			label.BackgroundTransparency = 1
-			label.TextScaled = true
-		end
+-- قفز لا نهائي
+game:GetService("UserInputService").JumpRequest:Connect(function()
+	if _G.infiniteJumpEnabled then
+		character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
 	end
 end)
+
+-- ESP كشف اللاعبين
+local function enableESP()
+	for _, p in pairs(game.Players:GetPlayers()) do
+		if p ~= player and p.Character and p.Character:FindFirstChild("Head") then
+			local Billboard = Instance.new("BillboardGui", p.Character.Head)
+			Billboard.Size = UDim2.new(0, 100, 0, 40)
+			Billboard.AlwaysOnTop = true
+
+			local Text = Instance.new("TextLabel", Billboard)
+			Text.Text = p.Name
+			Text.TextColor3 = Color3.new(1, 0, 0)
+			Text.BackgroundTransparency = 1
+			Text.Size = UDim2.new(1, 0, 1, 0)
+		end
+	end
+end
+
+-- إنشاء الأزرار داخل الواجهة
+local function createButton(text, posY, callback)
+	local button = Instance.new("TextButton", MainFrame)
+	button.Size = UDim2.new(0, 280, 0, 40)
+	button.Position = UDim2.new(0, 10, 0, posY)
+	button.BackgroundColor3 = Color3.fromRGB(math.random(100,255), math.random(100,255), math.random(100,255))
+	button.Text = text
+	button.TextColor3 = Color3.new(1,1,1)
+	button.Font = Enum.Font.GothamBold
+	button.TextScaled = true
+	button.MouseButton1Click:Connect(callback)
+end
+
+-- الأزرار
+createButton("🔁 انتقال سريع لمنطقتي", 10, teleportToSafeZone)
+createButton("🚀 تفعيل قفز لا نهائي", 60, function() _G.infiniteJumpEnabled = true end)
+createButton("🔎 كشف اللاعبين", 110, enableESP)
+createButton("❌ إغلاق الواجهة", 160, function() MainFrame.Visible = false end)
+
+-- تعيين اسم الواجهة
+ScreenGui.DisplayOrder = 1000
